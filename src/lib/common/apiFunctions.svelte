@@ -368,17 +368,18 @@
 		return headscalePreAuthKey;
 	}
 
-	export async function newPreAuthKey(userID: string, expiry: string, reusable: boolean, ephemeral: boolean): Promise<any> {
+	export async function newPreAuthKey(userID: string, expiry: string, reusable: boolean, ephemeral: boolean): Promise<PreAuthKey> {
 		// variables in local storage
 		let headscaleURL = localStorage.getItem('headscaleURL') || '';
 		let headscaleAPIKey = localStorage.getItem('headscaleAPIKey') || '';
 		// endpoint url for editing users
 		let endpointURL = '/api/v1/preauthkey';
 
-		await fetch(headscaleURL + endpointURL, {
+		let response = await fetch(headscaleURL + endpointURL, {
 			method: 'POST',
 			headers: {
 				Accept: 'application/json',
+				'Content-Type': 'application/json',
 				Authorization: `Bearer ${headscaleAPIKey}`
 			},
 			body: JSON.stringify({
@@ -387,19 +388,15 @@
 				reusable: reusable,
 				ephemeral: ephemeral
 			})
-		})
-			.then((response) => {
-				if (response.ok) {
-					return response;
-				} else {
-					return response.text().then((text) => {
-						throw JSON.parse(text).message;
-					});
-				}
-			})
-			.catch((error) => {
-				throw error;
-			});
+		});
+
+		if (!response.ok) {
+			let text = await response.text();
+			throw JSON.parse(text).message;
+		}
+
+		let data = await response.json();
+		return new PreAuthKey(data.preAuthKey);
 	}
 
 	export async function removePreAuthKey(preAuthKeyID: string): Promise<any> {
