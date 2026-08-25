@@ -53,6 +53,8 @@ jobs:
           build-args: |
             BUILD_DATE=${{ env.BUILD_DATE }}
             VERSION=${{ env.VERSION }}
+            PROJECT_URL=https://github.com/${{ github.repository }}
+            CHECKOUT_BRANCH=${{ github.ref_name }}
           context: ./docker/production
           tags: |
             ${{ env.TAGS }}
@@ -66,7 +68,7 @@ jobs:
         with:
           image: ghcr.io/${{ github.repository }}:${{ env.PRIMARY_TAG }}
           path: web
-          
+
       - name: create release asset
         if: ${{ env.NOT_PREVIOUSLY_PUBLISHED != 0 }}
         run: |

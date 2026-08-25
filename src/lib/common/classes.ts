@@ -37,7 +37,7 @@ export class APIKey {
 }
 
 export class PreAuthKey {
-	public user: string = '';
+	public user?: User;
 	public id: string = '';
 	public key: string = '';
 	public createdAt: string = '';
@@ -45,6 +45,7 @@ export class PreAuthKey {
 	public reusable: boolean = false;
 	public ephemeral: boolean = false;
 	public used: boolean = false;
+	public aclTags: string[] = [];
 
 	public constructor(init?: Partial<PreAuthKey>) {
 		Object.assign(this, init);

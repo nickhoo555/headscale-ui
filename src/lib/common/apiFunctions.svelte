@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
 	import { APIKey, Device, PreAuthKey, User } from '$lib/common/classes';
-	import { deviceStore, userStore, apiTestStore} from '$lib/common/stores.js';
+	import { deviceStore, userStore, apiTestStore } from '$lib/common/stores.js';
 	import { sortDevices, sortUsers } from '$lib/common/sorting.svelte';
 	import { filterDevices, filterUsers } from './searching.svelte';
 
@@ -152,7 +152,6 @@
 	}
 
 	export async function updateTags(deviceID: string, tags: string[]): Promise<any> {
-
 		// variables in local storage
 		let headscaleURL = localStorage.getItem('headscaleURL') || '';
 		let headscaleAPIKey = localStorage.getItem('headscaleAPIKey') || '';
@@ -246,7 +245,6 @@
 	}
 
 	export async function getDevices(): Promise<any> {
-
 		// variables in local storage
 		let headscaleURL = localStorage.getItem('headscaleURL') || '';
 		let headscaleAPIKey = localStorage.getItem('headscaleAPIKey') || '';
@@ -338,7 +336,7 @@
 		let endpointURL = '/api/v1/preauthkey';
 
 		//returning variables
-		let headscalePreAuthKey = [new PreAuthKey()];
+		let headscalePreAuthKey: PreAuthKey[] = [];
 		let headscalePreAuthKeyResponse: Response = new Response();
 
 		await fetch(headscaleURL + endpointURL + '?user=' + userID, {
@@ -362,7 +360,10 @@
 			});
 
 		await headscalePreAuthKeyResponse.json().then((data) => {
-			headscalePreAuthKey = data.preAuthKeys;
+			// Headscale 0.28+ returns every pre-auth key and ignores the legacy
+			// `user` query parameter. Keep the query for older servers, but filter
+			// the global response so each user card only shows its own keys.
+			headscalePreAuthKey = (data.preAuthKeys || []).filter((key: PreAuthKey) => String(key.user?.id || '') === String(userID));
 		});
 		return headscalePreAuthKey;
 	}
@@ -401,7 +402,7 @@
 			});
 	}
 
-	export async function removePreAuthKey(userID: string, preAuthKey: string): Promise<any> {
+	export async function removePreAuthKey(preAuthKeyID: string): Promise<any> {
 		// variables in local storage
 		let headscaleURL = localStorage.getItem('headscaleURL') || '';
 		let headscaleAPIKey = localStorage.getItem('headscaleAPIKey') || '';
@@ -416,8 +417,7 @@
 				Authorization: `Bearer ${headscaleAPIKey}`
 			},
 			body: JSON.stringify({
-				user: userID,
-				key: preAuthKey
+				id: preAuthKeyID
 			})
 		})
 			.then((response) => {
@@ -435,7 +435,6 @@
 	}
 
 	export async function newDevice(key: string, userId: string): Promise<any> {
-
 		// variables in local storage
 		let headscaleURL = localStorage.getItem('headscaleURL') || '';
 		let headscaleAPIKey = localStorage.getItem('headscaleAPIKey') || '';
@@ -465,7 +464,6 @@
 	}
 
 	export async function moveDevice(deviceID: string, userID: string): Promise<any> {
-
 		// variables in local storage
 		let headscaleURL = localStorage.getItem('headscaleURL') || '';
 		let headscaleAPIKey = localStorage.getItem('headscaleAPIKey') || '';
@@ -498,7 +496,6 @@
 	}
 
 	export async function renameDevice(deviceID: string, name: string): Promise<any> {
-
 		// variables in local storage
 		let headscaleURL = localStorage.getItem('headscaleURL') || '';
 		let headscaleAPIKey = localStorage.getItem('headscaleAPIKey') || '';
@@ -528,7 +525,6 @@
 	}
 
 	export async function removeDevice(deviceID: string): Promise<any> {
-		
 		// variables in local storage
 		let headscaleURL = localStorage.getItem('headscaleURL') || '';
 		let headscaleAPIKey = localStorage.getItem('headscaleAPIKey') || '';

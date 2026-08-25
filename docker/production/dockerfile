@@ -4,11 +4,14 @@ FROM node:24 AS build
 ARG VERSION="master"
 # Branch to check out
 ARG CHECKOUT_BRANCH="master"
+# Repository to clone. The release workflow overrides this with the current
+# fork so fork-specific fixes are included in published images.
+ARG PROJECT_URL="https://github.com/gurucomputing/headscale-ui"
 
 #environment variables
 ENV PROJECT_NAME="headscale-ui"
 # URL for the github/git location
-ENV PROJECT_URL="https://github.com/gurucomputing/headscale-ui"
+ENV PROJECT_URL=${PROJECT_URL}
 
 # Set the staging environment
 WORKDIR /staging/scripts
